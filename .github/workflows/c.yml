@@ -15,7 +15,6 @@ jobs:
     - uses: actions/checkout@v4
     - name: make
       run: make
-    - name: navigate
-      run: cd tests
     - name: make check
+      working-directory: ./tests
       run: make check
