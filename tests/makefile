@@ -1,6 +1,10 @@
 CC=clang
 CFLAGS=-Wall -Wextra
 
+check: varint_test.o packet_test.o 
+	make valgrind_varint
+	make valgrind_packet
+
 valgrind_%: %
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$<_test
 
