@@ -1,5 +1,6 @@
-#include "varint.h"
-#include "assertlib.h"
+#include "../include/varint.h"
+#include "../include/assertlib.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>

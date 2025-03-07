@@ -3,9 +3,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "varint.h"
-#include "packet.h"
-#include "assertlib.h"
+#include "../include/varint.h"
+#include "../include/packet.h"
+#include "../include/assertlib.h"
 
 #include <string.h>
 #include <stdlib.h>

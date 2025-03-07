@@ -13,7 +13,7 @@ main: main.o packet.o varint.o assertlib.o
 packet: packet.o varint.o 
 	$(CC) $(CFLAGS) -c $^ -o $@ 
 
-%.o: %.c
+%.o: src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $< 
 
 

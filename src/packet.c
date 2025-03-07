@@ -1,6 +1,6 @@
-#include "packet.h"
-#include "varint.h"
-#include "assertlib.h"
+#include "../include/packet.h"
+#include "../include/varint.h"
+#include "../include/assertlib.h"
 
 #include <string.h>
 #include <stdio.h>
