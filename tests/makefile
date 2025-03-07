@@ -5,23 +5,20 @@ run: varint_test.o packet_test.o
 	make valgrind_varint
 	make valgrind_packet
 
-valgrind_%: %
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$<_test
+valgrind_%: %_test
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./$<
 
-varint: varint_test.o testlib.o _varint.o _assertlib.h
-	$(CC) $(CFLAGS) -o varint_test varint_test.o _varint.o testlib.o
+varint_test: varint_test.o testlib.o varint.o assertlib.o
+	$(CC) $(CFLAGS) -o $@ $^
 
-packet: packet_test.o testlib.o _packet.o _varint.o _assertlib.h
-	$(CC) $(CFLAGS) -o packet_test packet_test.o testlib.o _packet.o _varint.o 
+packet_test: packet_test.o testlib.o packet.o varint.o assertlib.o
+	$(CC) $(CFLAGS) -o $@ $^
 
-_%.o: ../%.c
-	$(CC) -c -o $@ $< $(CFLAGS)
+%_test.o: %_test.c
+	$(CC) $(CFLAGS) -c -o $@ $< 
 
-%.o: %.c
-	$(CC) -c -o $@ $< $(CFLAGS)
-
-_%.h: ../%.h
-	echo "using header file $<"
+%.o: ../src/%.c
+	$(CC) $(CFLAGS) -c -o $@ $< 
 
 clean:
 	rm *.o varint_test packet_test vgcore\.*

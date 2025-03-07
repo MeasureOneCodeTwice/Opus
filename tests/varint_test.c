@@ -1,6 +1,7 @@
-#include "../varint.h"
-#include "testlib.h"
-#include "../assertlib.h"
+#include "../include/varint.h"
+#include "../include/testlib.h"
+#include "../include/assertlib.h"
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>

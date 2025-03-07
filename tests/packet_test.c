@@ -1,6 +1,7 @@
-#include "testlib.h"
-#include "../packet.h"
-#include "../assertlib.h"
+#include "../include/testlib.h"
+#include "../include/packet.h"
+#include "../include/assertlib.h"
+
 #include <stdio.h>
 #include <assert.h>
 #include <unistd.h>
