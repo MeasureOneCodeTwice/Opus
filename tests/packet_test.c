@@ -44,7 +44,7 @@ int main(void) {
     expected_binary = (uint8_t[8]){ 0x07, 0x80, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
     packet_test(0x80, buff, 5, expected_binary, 8);
 
-    summary(&tests_passed, &tests_failed);
+    return summary(&tests_passed, &tests_failed);
 
     return 0;
 }

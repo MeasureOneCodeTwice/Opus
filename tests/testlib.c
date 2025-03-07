@@ -7,7 +7,7 @@
 #define RESET "\033[39m"
 
 
-bool verify_fcn(int expression, int* tests_passed, int* tests_failed, char* expression_text) {
+bool verify_fcn(bool expression, int* tests_passed, int* tests_failed, char* expression_text) {
     int testnum = *tests_passed + *tests_failed + 1;
     printf("Test %d ", testnum);
     if (expression) {
@@ -21,7 +21,7 @@ bool verify_fcn(int expression, int* tests_passed, int* tests_failed, char* expr
     return expression;
 }
 
-void summary(int* tests_passed, int* tests_failed) {
+bool summary(int* tests_passed, int* tests_failed) {
     int num_tests = *tests_passed + *tests_failed;
     printf("\n\n");
     if (num_tests  == 0 ) 
@@ -32,4 +32,6 @@ void summary(int* tests_passed, int* tests_failed) {
         printf("%sAll tests failed%s, you fucking muppet.\n", RED, RESET);
     else
         printf("%d of %d %stests failed%s.\n", *tests_failed, num_tests, RED, RESET);
+
+    return tests_failed == 0;
 }

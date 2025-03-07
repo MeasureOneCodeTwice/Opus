@@ -177,6 +177,7 @@ int main() {
         return 1;        
     }
     
+    printf("End of main more coming soon ;).\n");
     /* packetWritable* response_w = packet_writable_from_stream(sock); */
     /* success = c_assert( response_w != NULL, */ 
     /*         "Could not recieve response packet." */

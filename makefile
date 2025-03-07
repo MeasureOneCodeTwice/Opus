@@ -1,6 +1,9 @@
 CC=clang
 CFLAGS=-Wall -Wextra
 
+run: main
+	./main
+
 valgrind: main
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./main
 

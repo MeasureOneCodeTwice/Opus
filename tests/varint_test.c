@@ -53,5 +53,5 @@ int main(void) {
     memcpy(stack_vint.data, data, 2);
     verify(varint_vint_to_int(&stack_vint) == 128, "Varint (128) to int");
 
-    summary(&tests_passed, &tests_failed);
+    return summary(&tests_passed, &tests_failed);
 }

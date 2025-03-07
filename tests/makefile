@@ -1,7 +1,7 @@
 CC=clang
 CFLAGS=-Wall -Wextra
 
-check: varint_test.o packet_test.o 
+run: varint_test.o packet_test.o 
 	make valgrind_varint
 	make valgrind_packet
 
