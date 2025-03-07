@@ -13,8 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: make
-      run: make
-    - name: make check
-      working-directory: ./tests
-      run: make check
+    - name: docker-bulid 
+      run: docker build --build-arg directory=tests -t opus .
+    - name: docker-run
+      run: docker run opus
