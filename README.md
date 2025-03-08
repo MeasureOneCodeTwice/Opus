@@ -22,7 +22,7 @@ If you opt to use the `Makefile` directly, please check the `dependencies` file 
 - **Make**
 - **Clang**
 - **Valgrind***
-- **Bash*** <br>
+- **Bash*** <br> <br> <br>
 *required only for running test suite
 ## Building
 
