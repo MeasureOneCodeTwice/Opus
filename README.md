@@ -1,48 +1,76 @@
-# Description
+# Opus Minecraft Discord Bot
 
-Opus is a work in progress minecraft discord bot written in C
+Opus is a work-in-progress Minecraft Discord bot written in C.
 
-# Installation
+---
 
-You can either run the project with `Docker` or directory with the `Makefile`
+## Installation
 
-If you opt to use docker, docker is the sole dependency.
+You can run Opus using either `Docker` or directly with the `Makefile`.
 
-If using the makefile directly check the `dependencies` file for a comprehensive list of the project's dependencies.
-Note that the dependencies listed `dependencies` are those for a minimal installation of Alpine linux. 
-If you are using a distribution more package rich by default some dependencies such as `musl-dev` which
-contains basic C libraries will likely already be installed on you system.
+### Option 1: Docker (Recommended for simplicity)
 
-Below is a list of the dependencies which are not unlikely to be missing from an distribution such as Ubuntu.
-- Make
-- Clang
-The following package is also required for running the test suite.
-- Valgrind 
+- **Docker** is the only dependency required for this option.
 
-# Building 
+### Option 2: Using Makefile
 
-This step is only required if you intend to run Opus in docker.
+If you opt to use the `Makefile` directly, please check the `dependencies` file for a comprehensive list of the project's dependencies. The dependencies listed in the `dependencies` file are for a minimal installation of Alpine Linux.
 
-To build the main image use <br>
-    `docker build -t Opus .`
-To build the test suite image use <br>
-    `docker build --build-arg directory=tests -t Opus/tests .`
+> **Note**: If you're using a package-rich distribution like Ubuntu, some dependencies (e.g., `musl-dev` for basic C libraries) may already be installed.
 
-# Running
+#### Required Dependencies (for Makefile option)
+- **Make**
+- **Clang**
+- **Valgrind** (test suite only)
 
-### With Makefile (Recommended)
+---
 
-To run the main program run
-    `make run`
-To run the test suite navigate to the `tests` directory and run
-    `make run`
+## Building
 
-### With Docker
+This step is only necessary if you're using Docker to run Opus.
 
-To run the main program run <br>
-`docker run Opus`
-To run the test suite run <br>
-`docker run Opus/tests`
+**Build the main image**:
 
+```bash
+docker build -t Opus .
+```
 
+**Build the test suite image**:
 
+```bash
+docker build --build-arg directory=tests -t Opus/tests .
+```
+
+---
+
+## Running
+
+You can run Opus either through the `Makefile` or `Docker`.
+
+### Option 1: Using Makefile (Recommended)
+
+**Run the main program**:
+
+```bash
+make run
+```
+
+**Run the test suite** (navigate to `tests` directory first):
+
+```bash
+make run
+```
+
+### Option 2: Using Docker
+
+**Run the main program**:
+
+```bash
+docker run Opus
+```
+
+**Run the test suite**:
+
+```bash
+docker run Opus/tests
+```
