@@ -1,4 +1,5 @@
 valgrind
+bash
 musl-dev
 make
 clang
