@@ -23,7 +23,7 @@ This step is only required if you intend to run Opus in docker.
 To build the main image use
 `docker build -t Opus .`
 To build the test suite image use 
-`docker build --build-arg directory=tests -t Opus/tests .
+`docker build --build-arg directory=tests -t Opus/tests .`
 
 # Running
 
