@@ -23,9 +23,9 @@ The following package is also required for running the test suite.
 
 This step is only required if you intend to run Opus in docker.
 
-To build the main image use
+To build the main image use <br>
     `docker build -t Opus .`
-To build the test suite image use
+To build the test suite image use <br>
     `docker build --build-arg directory=tests -t Opus/tests .`
 
 # Running
@@ -39,9 +39,9 @@ To run the test suite navigate to the `tests` directory and run
 
 ### With Docker
 
-To run the main program run
+To run the main program run <br>
 `docker run Opus`
-To run the test suite run
+To run the test suite run <br>
 `docker run Opus/tests`
 
 
