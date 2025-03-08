@@ -21,17 +21,17 @@ The following package is also required for running the test suite.
 This step is only required if you intend to run Opus in docker.
 
 To build the main image use
-`docker build -t Opus .`
-To build the test suite image use 
-`docker build --build-arg directory=tests -t Opus/tests .`
+    `docker build -t Opus .`
+To build the test suite image use
+    `docker build --build-arg directory=tests -t Opus/tests .`
 
 # Running
 
 ### With Makefile (Recommended)
 To run the main program run
-`make run`
+    `make run`
 To run the test suite navigate to the `tests` directory and run
-`make run`
+    `make run`
 
 ### With Docker
 To run the main program run
