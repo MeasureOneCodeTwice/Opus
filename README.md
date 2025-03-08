@@ -1,4 +1,4 @@
-# Opus Minecraft Discord Bot
+# About
 
 Opus is a work-in-progress Minecraft Discord bot written in C.
 
@@ -23,8 +23,6 @@ If you opt to use the `Makefile` directly, please check the `dependencies` file 
 - **Clang**
 - **Valgrind** (test suite only)
 
----
-
 ## Building
 
 This step is only necessary if you're using Docker to run Opus.
@@ -40,8 +38,6 @@ docker build -t Opus .
 ```bash
 docker build --build-arg directory=tests -t Opus/tests .
 ```
-
----
 
 ## Running
 
