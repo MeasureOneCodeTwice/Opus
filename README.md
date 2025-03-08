@@ -1,7 +1,9 @@
 # Description
+
 Opus is a work in progress minecraft discord bot written in C
 
 # Installation
+
 You can either run the project with `Docker` or directory with the `Makefile`
 
 If you opt to use docker, docker is the sole dependency.
@@ -18,6 +20,7 @@ The following package is also required for running the test suite.
 - Valgrind 
 
 # Building 
+
 This step is only required if you intend to run Opus in docker.
 
 To build the main image use
@@ -28,12 +31,14 @@ To build the test suite image use
 # Running
 
 ### With Makefile (Recommended)
+
 To run the main program run
     `make run`
 To run the test suite navigate to the `tests` directory and run
     `make run`
 
 ### With Docker
+
 To run the main program run
 `docker run Opus`
 To run the test suite run
