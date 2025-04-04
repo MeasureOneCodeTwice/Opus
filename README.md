@@ -21,8 +21,9 @@ If you opt to use the `Makefile` directly, please check the `dependencies` file 
 #### Required Dependencies (for Makefile option)
 - **Make**
 - **Clang**
-- **Valgrind** (test suite only)
-
+- **Valgrind***
+- **Bash*** <br> <br> <br>
+*required only for running test suite
 ## Building
 
 This step is only necessary if you're using Docker to run Opus.
