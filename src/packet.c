@@ -237,9 +237,9 @@ packetWritable* packet_writable_from_readable(
 bool packet_stream_from_writable(int fd, const packetWritable* p) {
 
     errno = 0;
-    bool precond_met = !c_warn(fd >= 0, "passed fd = %d\n", fd);
-    precond_met &= !c_warn(p != NULL, "passed NULL packet\n");
-    if(precond_met) {
+    bool precond_met = c_warn(fd >= 0, "passed fd = %d\n", fd);
+    precond_met &= c_warn(p != NULL, "passed NULL packet\n");
+    if(!precond_met) { 
         return false;
     }
 
@@ -306,7 +306,15 @@ packetWritable* packet_writable_from_stream(int fd) {
     uint8_t* data = NULL;
     if(data_len != 0) {
         data = malloc(data_len);
-        int bytes_read = read(fd, data, data_len);
+
+        //TODO write function what basically does what the while loop below does and use that instead.
+        size_t total_bytes_read = 0;
+        int bytes_read;
+
+        /* do { */
+            bytes_read = read(fd, data + total_bytes_read, data_len - total_bytes_read);
+            total_bytes_read += bytes_read;
+        /* } while(total_bytes_read < data_len && bytes_read != -1 && errno == 0); */
 
         error = !c_assert(errno == 0,
                 "Error reading packet body."

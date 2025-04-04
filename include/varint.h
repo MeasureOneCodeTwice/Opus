@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 #include <sys/types.h>
 #define MAX_VARINT_LEN 5

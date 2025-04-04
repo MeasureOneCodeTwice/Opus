@@ -8,5 +8,4 @@ COPY . /project
 COPY tests/* /project/tests/
 
 
-WORKDIR /project/$directory
-CMD ["make", "run"]
+CMD ["make", "-C $directory run"]
