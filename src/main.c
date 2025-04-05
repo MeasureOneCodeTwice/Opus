@@ -58,15 +58,20 @@ int main() {
         return 1;
     }
     
-    bool success = mc_protocol_handshake(sock, STATE_STATUS);
+    bool success = mc_protocol_handshake(sock, STATE_LOGIN);
     if(!c_assert(success, "Handshake failed.")) {
         return 1;        
     }
     
-    success = mc_protocol_get_status(sock);
+
+    success = mc_protocol_login_request(sock, "logan", NULL);
     if(!c_assert(success, "Could not send status request packet.")) {
         return 1;        
     }
+    /* success = mc_protocol_get_status(sock); */
+    /* if(!c_assert(success, "Could not send status request packet.")) { */
+    /*     return 1; */        
+    /* } */
 
     packetWritable* response_w = packet_writable_from_stream(sock);
     success = c_assert( response_w != NULL, 
