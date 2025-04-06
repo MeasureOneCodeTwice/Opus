@@ -38,6 +38,7 @@ typedef struct packet_writable{
 
 
 //private functions
+int read_all(int sock, void* buff, size_t buff_len); 
 void packet_readable_free(packetReadable* p);
 void packet_writable_free(packetWritable* p);
 bool packet_readable_metadata_eq(
@@ -49,6 +50,22 @@ size_t packet_writable_get_total_len(const packetWritable* p);
 //-------------------------
 //----- PRIVATE UTILS -----
 //-------------------------
+
+int read_all(int sock, void* buff, size_t buff_len) {
+
+    size_t total_bytes_read = 0;
+    int bytes_read;
+    bool failure = false;
+
+    do {
+        bytes_read = read(sock, buff + total_bytes_read, buff_len - total_bytes_read);
+        total_bytes_read += bytes_read;
+        failure = bytes_read < 0 || errno != 0;
+    } while(!failure && total_bytes_read < buff_len);
+
+    return !failure && total_bytes_read == buff_len ? total_bytes_read : bytes_read;
+}
+
 
 size_t packet_writable_get_data_len(const packetWritable* p) {
     return varint_vint_to_int(p->packet_len) - p->packet_id->len;
@@ -307,15 +324,7 @@ packetWritable* packet_writable_from_stream(int fd) {
     if(data_len != 0) {
         data = malloc(data_len);
 
-        //TODO write function what basically does what the while loop below does and use that instead.
-        size_t total_bytes_read = 0;
-        int bytes_read;
-
-        /* do { */
-            bytes_read = read(fd, data + total_bytes_read, data_len - total_bytes_read);
-            total_bytes_read += bytes_read;
-        /* } while(total_bytes_read < data_len && bytes_read != -1 && errno == 0); */
-
+        int bytes_read = read_all(fd, data, data_len);
         error = !c_assert(errno == 0,
                 "Error reading packet body."
         );
@@ -425,4 +434,3 @@ void packet_free(Packet *p) {
     }
 
 }
-

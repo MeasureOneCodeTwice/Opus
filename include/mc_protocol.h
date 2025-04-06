@@ -35,3 +35,7 @@ bool mc_protocol_login_request(
         const char* username, //any character after the 16th is ignored.
         const UUID_128* uuid  
 );
+
+
+//recieves and parses the encryption response into a  
+bool mc_protocol_parse_encryption_response(int sock);

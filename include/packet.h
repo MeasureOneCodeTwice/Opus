@@ -23,7 +23,6 @@ typedef struct packet {
     packetMetadata* metadata; 
 } Packet;
 
-
 //Takes a packetReadable and creates a packetWritable from it.
 //Be careful of double frees on the data attribute when 
 //using copy_data = false.

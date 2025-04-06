@@ -27,7 +27,7 @@ Varint* varint_int_to_vint(int n) {
 }
 
 
-int varint_bytes_to_int(uint8_t* data) {
+int varint_bytes_to_int(const uint8_t* data) {
     if(!c_warn(data != NULL, "passed NULL data pointer.")) {
         return -1;
     }
@@ -42,7 +42,7 @@ int varint_bytes_to_int(uint8_t* data) {
 }
 
 
-int varint_vint_to_int(Varint* v) {
+int varint_vint_to_int(const Varint* v) {
     if(!c_warn(v != NULL, "passed NULL varint.")) {
         return -1;
     }

@@ -9,7 +9,7 @@ typedef struct varint {
 } Varint;
 
 Varint* varint_int_to_vint(int n);
-int     varint_vint_to_int(Varint* v);
-int     varint_bytes_to_int(uint8_t* v);
+int     varint_vint_to_int(const Varint* v);
+int     varint_bytes_to_int(const uint8_t* v);
 void    varint_free(Varint* v);
 Varint* varint_vint_from_stream(int fd);
