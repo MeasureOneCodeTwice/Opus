@@ -24,7 +24,7 @@ If you opt to use the `Makefile` directly, please check the `dependencies` file 
 
 *required only for running test suite
 
-> **Note**: If you're using a package-rich distribution like Ubuntu, some dependencies in the `dependencies` file (e.g., `musl-dev` for basic C libraries) may already be installed.
+> **Note**: If you're using a package-rich distribution like Ubuntu, some dependencies in the `dependencies` file (e.g., `musl-dev` for basic C libraries) or equivalents may already be installed.
 
 ## Execution
 
