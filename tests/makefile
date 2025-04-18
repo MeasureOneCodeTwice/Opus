@@ -19,7 +19,7 @@ packet_test: packet_test.o testlib.o packet.o varint.o assertlib.o
 	$(CC) $(CFLAGS) -c -o $@ $< 
 
 clean:
-	rm *.o varint_test packet_test vgcore\.*
+	rm *.o varint_test packet_test util_packet_body_test vgcore\.*
 
 
 
