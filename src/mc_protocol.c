@@ -24,11 +24,6 @@ typedef struct encryption_request_response_writable {
     uint8_t  should_authenticate;
 } encryptionRequestResponseWritable;
 
-typedef struct len_data_pair {
-    size_t len;
-    uint8_t* data;
-} lenDataPair;
-
 /* enum SERVER_STATE { */
 /*     STATE_STATUS   = 1, */
 /*     STATE_LOGIN    = 2, */
@@ -38,13 +33,6 @@ typedef struct len_data_pair {
 //-------------------------------------
 //-----PRIVATE UTIL PREDECLARATION-----
 //-------------------------------------
-
-lenDataPair** parse_generic_packet_body(
-        const uint8_t* body,
-        size_t body_len,
-        int num_pairs
-);
-
 uint8_t* get_handshake_packet_body(
         int protocol_version,
         const char server_addr[255],
@@ -66,9 +54,9 @@ uint8_t* get_handshake_packet_body(int protocol_version, const char server_addr[
 
     size_t server_address_len = strnlen(server_addr, 254) + 1;
 
-    Varint *protocol_version_vint  = varint_int_to_vint(protocol_version);
-    Varint *server_addr_len_vint   = varint_int_to_vint(server_address_len);
-    Varint *next_state_vint        = varint_int_to_vint(next_state);
+    Varint *protocol_version_vint  = varint_vint_from_int(protocol_version);
+    Varint *server_addr_len_vint   = varint_vint_from_int(server_address_len);
+    Varint *next_state_vint        = varint_vint_from_int(next_state);
 
 
     *buff_len = 
@@ -98,81 +86,10 @@ uint8_t* get_handshake_packet_body(int protocol_version, const char server_addr[
     return buff;
 }
 
-
-lenDataPair** parse_generic_packet_body(
-        const uint8_t* body,
-        size_t body_len,
-        int num_pairs
-) {
-    bool failure = false;
-
-    lenDataPair** result = malloc(sizeof(lenDataPair*) * num_pairs); 
-    failure = !c_assert(
-            result != NULL, 
-            "Could not allocate space for array of lenDataPair pointers"
-    ); 
-
-    if(failure) {
-        return NULL;
-    }
-
-    size_t offset = 0;
-    int i = 0;
-    for(; i < num_pairs && body_len && !failure; i++) {
-        result[i] = malloc(sizeof(lenDataPair));
-        failure = !c_assert(
-            result != NULL, 
-            "Could not allocate space for lenDataPair"
-        ); 
-        if(failure) break;
-
-        int chunk_len = varint_bytes_to_int(body);
-        failure = !c_assert(
-            chunk_len >= 0,
-            "Could beginning of chunk to varint"
-        );
-        if(failure) break;
-        offset += chunk_len;
-
-        result[i]->len = chunk_len;
-        result[i]->data = malloc(chunk_len);
-        failure = !c_assert(
-            result[i]->data != NULL, 
-            "Could not allocate chunk body"
-        ); 
-        if(failure) break;
-
-        memcpy(result[i]->data, body + offset, chunk_len);
-        offset += chunk_len;
-    }
-
-    if(failure) {
-        //don't go freeing all the way, we need to be careful with 
-        //freeing the last bit of data
-        for(int j = 0; j < i - 1 ; j++) {
-            free(result[j]->data);
-            free(result[j]);
-        }
-
-        if(result[i - 1] != NULL) {
-            if(result[i - 1]->data != NULL) {
-                free(result[i - 1]->data);
-            }
-            free(result[i - 1]);
-        }
-
-        free(result);
-    }
-
-    return failure ? NULL : result;
-}
-
-
-
 //----------------------------
 //----- PUBLIC FUNCTIONS -----
 //----------------------------
-//
+
 bool mc_protocol_handshake_custom(
             int sock,  
             const char* server_addr,
@@ -267,7 +184,7 @@ bool mc_protocol_login_request(
     }
 
     size_t username_length = strnlen(username, MAX_USERNAME_LENGTH);
-    Varint* username_length_vint = varint_int_to_vint(username_length);
+    Varint* username_length_vint = varint_vint_from_int(username_length);
     bool error = !c_assert(
             username_length_vint != NULL,
             "Could not convert username length into a varint"

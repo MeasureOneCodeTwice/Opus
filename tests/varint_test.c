@@ -21,7 +21,7 @@ int main(void) {
     bool correct_len = true;
     bool equal = true;
     for(int i = 0; i < 128 && equal; i++) {
-        vint = varint_int_to_vint(i);
+        vint = varint_vint_from_int(i);
         equal &= vint->data[0] == i;
         correct_len &= vint->len == 1;
         varint_free(vint);
@@ -31,14 +31,14 @@ int main(void) {
 
     //the thresholds for needing another byte.
     for(int i = 1; i < 5; i++) {
-        vint = varint_int_to_vint(0x01 << (i * 7));
+        vint = varint_vint_from_int(0x01 << (i * 7));
         verify(vint->data[i] == 0x01, "Randomish varint");
         verify(vint->len == (size_t)(i + 1), "Randomish varint length");
         varint_free(vint);
     }
 
 
-    vint = varint_int_to_vint(INT_MAX);
+    vint = varint_vint_from_int(INT_MAX);
     bool as_expected = true;
     for(int i = 0; i < 4; i++) {
         as_expected &= vint->data[i] == 0xFF;
@@ -52,7 +52,7 @@ int main(void) {
         .len = 2,
     };
     memcpy(stack_vint.data, data, 2);
-    verify(varint_vint_to_int(&stack_vint) == 128, "Varint (128) to int");
+    verify(varint_int_from_vint(&stack_vint) == 128, "Varint (128) to int");
 
     return summary(&tests_passed, &tests_failed);
 }

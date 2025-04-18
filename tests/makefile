@@ -1,8 +1,10 @@
 CC=clang
-CFLAGS=-Wall -Wextra
+CFLAGS=-Wall -Wextra -DNDEBUGLOG
 
-run: varint_test packet_test 
+run: varint_test packet_test util_packet_body_test
 	bash -c ./run_tests.sh
+
+util_packet_body_test: util_packet_body_test.o util_packet_body.o assertlib.o varint.o assertlib.o testlib.o
 
 varint_test: varint_test.o testlib.o varint.o assertlib.o
 	$(CC) $(CFLAGS) -o $@ $^

@@ -68,12 +68,12 @@ int read_all(int sock, void* buff, size_t buff_len) {
 
 
 size_t packet_writable_get_data_len(const packetWritable* p) {
-    return varint_vint_to_int(p->packet_len) - p->packet_id->len;
+    return varint_int_from_vint(p->packet_len) - p->packet_id->len;
 }
 
 
 size_t packet_writable_get_total_len(const packetWritable* p) {
-    return varint_vint_to_int(p->packet_len) + p->packet_len->len;
+    return varint_int_from_vint(p->packet_len) + p->packet_len->len;
 }
 
 
@@ -161,10 +161,10 @@ packetReadable* packet_readable_from_writable(
         .data_copied = copy_data,
     };
 
-    int packet_id = varint_vint_to_int(p->packet_id);
+    int packet_id = varint_int_from_vint(p->packet_id);
     
     size_t data_len = 
-        varint_vint_to_int(p->packet_len) - p->packet_id->len;
+        varint_int_from_vint(p->packet_len) - p->packet_id->len;
 
     packetReadable* p_readable = malloc(sizeof(packetReadable));
     *p_readable = (packetReadable){
@@ -233,7 +233,7 @@ packetWritable* packet_writable_from_readable(
     packetWritable* p_writable = malloc(sizeof(packetWritable));
     *p_writable = (packetWritable){
         .metadata   = metadata,
-        .packet_id  = varint_int_to_vint(p->packet_id),
+        .packet_id  = varint_vint_from_int(p->packet_id),
     };
 
     if(copy_data) {
@@ -245,7 +245,7 @@ packetWritable* packet_writable_from_readable(
     }
 
     p_writable->packet_len =
-        varint_int_to_vint(p->data_len + p_writable->packet_id->len);
+        varint_vint_from_int(p->data_len + p_writable->packet_id->len);
 
     return p_writable;
 }
@@ -307,7 +307,7 @@ packetWritable* packet_writable_from_stream(int fd) {
     );
     if(error) { return NULL; }
 
-    int packet_len = varint_vint_to_int(packet_len_vint);
+    int packet_len = varint_int_from_vint(packet_len_vint);
 
     Varint* packet_id_vint = varint_vint_from_stream(fd);
     error = !c_assert(packet_id_vint != NULL, 
@@ -405,7 +405,7 @@ size_t packet_writable_length(const packetWritable* p) {
         errno = ERRNO_BAD_VAL;
         return 0; 
     }
-    return varint_vint_to_int(p->packet_len) +
+    return varint_int_from_vint(p->packet_len) +
         p->packet_len->len;
 }
 

@@ -8,8 +8,9 @@ typedef struct varint {
     uint8_t data[MAX_VARINT_LEN];
 } Varint;
 
-Varint* varint_int_to_vint(int n);
-int     varint_vint_to_int(const Varint* v);
-int     varint_bytes_to_int(const uint8_t* v);
+Varint* varint_vint_from_int(int n);
+int     varint_int_from_vint(const Varint* v);
+int     varint_int_from_bytes(const uint8_t* v);
 void    varint_free(Varint* v);
 Varint* varint_vint_from_stream(int fd);
+Varint* varint_vint_from_bytes(const uint8_t* buff);

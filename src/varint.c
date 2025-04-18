@@ -5,10 +5,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#define SEGMENT_BITS = 0x7F
-#define CONTINUE_BIT = 0x80
+#define SEGMENT_BITS 0x7F
+#define CONTINUE_BIT 0x80
 
-Varint* varint_int_to_vint(int n) {
+Varint* varint_vint_from_int(int n) {
     if(!c_assert(n >= 0, "Passed negative integer %d\n", n)){
         return NULL;
     }
@@ -27,7 +27,7 @@ Varint* varint_int_to_vint(int n) {
 }
 
 
-int varint_bytes_to_int(const uint8_t* data) {
+int varint_int_from_bytes(const uint8_t* data) {
     if(!c_warn(data != NULL, "passed NULL data pointer.")) {
         return -1;
     }
@@ -42,11 +42,11 @@ int varint_bytes_to_int(const uint8_t* data) {
 }
 
 
-int varint_vint_to_int(const Varint* v) {
+int varint_int_from_vint(const Varint* v) {
     if(!c_warn(v != NULL, "passed NULL varint.")) {
         return -1;
     }
-    return varint_bytes_to_int(v->data);
+    return varint_int_from_bytes(v->data);
 }
 
 void varint_free(Varint* v) {
@@ -54,7 +54,6 @@ void varint_free(Varint* v) {
         return;
     }
     free(v);
-
 }
 
 
@@ -92,4 +91,20 @@ Varint* varint_vint_from_stream(int fd) {
     vint->len = index;
 
     return vint;
+}
+
+Varint* varint_vint_from_bytes(const uint8_t* buff) {
+    bool precond_met = c_assert(buff != NULL, "Passed NULL buffer");
+    if(!precond_met) {
+        return NULL;
+    }
+
+    Varint* result = malloc(sizeof(Varint));
+    int i = 0;
+    for(; i < MAX_VARINT_LEN; i++) {
+       result->data[i] = buff[i];
+       if((buff[i] & CONTINUE_BIT ) == 0) break; 
+    }
+    result->len = i + 1;
+    return result;
 }

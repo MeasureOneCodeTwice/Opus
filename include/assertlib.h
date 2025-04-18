@@ -12,6 +12,7 @@
 //Combined https://stackoverflow.com/questions/5867834/assert-with-message plus that Nasa 10 commandments code c_assert code snippet.
 #define clean_errno() (errno == 0 ? "None" : strerror(errno))
 
+#ifndef NDEBUGLOG
 #define log_error(M, ...)\
     fprintf(stderr, "%s [ERROR] %s (%s:%d: errno: %s) " M "\n",\
     RED, RESET, __FILE__, __LINE__, clean_errno(), ##__VA_ARGS__)
@@ -19,6 +20,13 @@
 #define warn(M, ...)\
     fprintf(stdout, "%s[WARNING]%s (%s:%d: errno: %s) " M "\n",\
     YELLOW, RESET, __FILE__, __LINE__, clean_errno(), ##__VA_ARGS__)
+#else
+//no-op
+#define log_error(M, ...) (void)0
+
+#define warn(M, ...) (void)0
+
+#endif
 
 #define c_assert(e, M, ...)\
     ((e) ? (true) : \
