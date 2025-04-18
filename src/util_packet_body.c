@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+//Private util
+void util_packet_body_lenDataPair_pairs_free_warnoption(lenDataPair** pairs, int num_pairs, bool warn);
+
 lenDataPair** util_packet_parse_generic_body(
         const uint8_t* body,
         size_t body_len,
@@ -15,33 +18,39 @@ lenDataPair** util_packet_parse_generic_body(
     bool precond_met = c_assert(body != NULL, "Passed NULL body");
     precond_met &= c_warn(body_len > 0 && num_pairs > 0, 
             "body_len: %zu num_pairs: %d", 
-            body_len, num_pairs
+             body_len, num_pairs
     );
-    if(!precond_met) {
-        return NULL;
-    }
+    if(!precond_met) { return NULL; }
 
-    bool failure = false;
+
+    //malloc array of lenDataPairs
     lenDataPair** result = malloc(sizeof(lenDataPair*) * num_pairs); 
+    int i = 0;
+    for(; i < num_pairs && result != NULL; i++) {
+        result[i] = malloc(sizeof(lenDataPair));
+        if(result[i] == NULL) { break; }
+        result[i]->len  = 0;
+        result[i]->data = NULL;
+    }
+    bool failure = false;
     failure = !c_assert(
             result != NULL, 
-            "Could not allocate space for array of lenDataPair pointers"
-    ); 
-
+            "Failed to allocate space for array of lenDataPair pointers"
+    );
+    failure = failure || !c_assert(
+            !failure && i == num_pairs,
+            "Failed to allocate space for lenDataPairs"
+    );
     if(failure) {
-        return NULL;
+        util_packet_body_lenDataPair_pairs_free_warnoption(result, num_pairs, false);
+        return NULL; 
     }
 
-    size_t offset = 0;
-    int i = 0;
-    for(; i < num_pairs && offset <= body_len && body_len; i++) {
 
-        result[i] = malloc(sizeof(lenDataPair));
-        failure = !c_assert(
-            result != NULL, 
-            "Could not allocate space for lenDataPair"
-        ); 
-        if(failure) break;
+    //parse data into the pairs
+    size_t offset = 0;
+    i = 0;
+    for(; i < num_pairs && offset <= body_len; i++) {
 
         Varint* chunk_body_len_vint = varint_vint_from_bytes(body + offset);
         failure = !c_assert(
@@ -59,13 +68,6 @@ lenDataPair** util_packet_parse_generic_body(
         );
         if(failure) break;
 
-        failure = !c_assert(offset + chunk_body_len != body_len || i + 1 == num_pairs, 
-            "Number of chunks are less than number specified (%d < %d)",
-            i + 1,
-            num_pairs
-        );
-        if(failure) break;
-
         //copy the chunk to a data len pair
         result[i]->len = chunk_body_len;
         result[i]->data = malloc(chunk_body_len);
@@ -77,32 +79,46 @@ lenDataPair** util_packet_parse_generic_body(
         memcpy(result[i]->data, body + offset, chunk_body_len);
         offset += chunk_body_len;
     }
-    failure |= !failure && !c_assert(offset == body_len, 
-        "Number of chunks is more than specificed"
+    //assert the chunks spanned the entire buffer and there is nothing left over.
+    failure |= !c_assert( !(i == num_pairs && offset != body_len), 
+        "Actual number of chunks exceeds number specified (%zu bytes remaining)",
+        body_len - offset
     );
 
-    if(failure) {
-        util_packet_body_lenDataPair_pairs_free(result, i);
-    }
-
+    if(failure) { util_packet_body_lenDataPair_pairs_free_warnoption(result, num_pairs, false); }
     return failure ? NULL : result;
 }
 
-void util_packet_body_lenDataPair_pairs_free(lenDataPair** pairs, int num_pairs) {
-    bool precond_met = c_warn(pairs != NULL, "Passed NULL pairs");
-    if(!precond_met) {
-        return;
+void util_packet_body_lenDataPair_pairs_free_warnoption(lenDataPair** pairs, int num_pairs, bool warn) {
+    bool precond_met; 
+    if(warn) {
+        precond_met = c_warn(pairs != NULL, "Passed NULL pairs");
+    } else { 
+        precond_met = pairs != NULL;
     }
+    if(!precond_met) { return; }
 
     for(int i = 0; i < num_pairs; i++) {
-        bool is_null = !c_warn(pairs[i] != NULL, "pairs contains NULL pair");
+        bool is_null;
+        if(warn) {
+            is_null = !c_warn(pairs[i] != NULL, "pairs contains NULL pair");
+        } else {
+            is_null = pairs[i] == NULL;
+        }
         if(!is_null) {
             util_packet_body_lenDataPair_free(pairs[i]);
         }
     }
 
-    c_warn(num_pairs > 0, "Passed num_pairs = %d", num_pairs);
+    if(warn) {
+        c_warn(num_pairs > 0, "Passed num_pairs = %d", num_pairs);
+    }
     free(pairs);
+
+}
+
+void util_packet_body_lenDataPair_pairs_free(lenDataPair** pairs, int num_pairs) {
+    util_packet_body_lenDataPair_pairs_free_warnoption(pairs, num_pairs, true);
 }
 
 
@@ -112,7 +128,6 @@ void util_packet_body_lenDataPair_free(lenDataPair* pair) {
         return;
     }
 
-    //may be legitimately be null on malloc(0)
     if(pair->data != NULL) {
         free(pair->data);
     }

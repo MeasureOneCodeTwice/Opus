@@ -45,6 +45,7 @@ void test_parse_generic_packet_body(void) {
         expected_contents &= result[1]->len == 2;
         expected_contents &= result[1]->data[0] == 0x00;
         expected_contents &= result[1]->data[1] == 0x00;
+        util_packet_body_lenDataPair_pairs_free(result, 2);
     }
     verify(expected_contents, "Contents of simple valid case correct");
 }
