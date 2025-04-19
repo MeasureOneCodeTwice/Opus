@@ -12,6 +12,7 @@ void test_parse_generic_packet_body(void);
 int main(void) {
     test_parse_generic_packet_body();
     summary(&tests_passed, &tests_failed);
+    return tests_failed;
 }
 
 void test_parse_generic_packet_body(void) {
