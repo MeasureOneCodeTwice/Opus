@@ -4,9 +4,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+typedef struct len_data_pair {
+    size_t len;
+    uint8_t* data;
+} lenDataPair;
 typedef struct packet_metadata packetMetadata;
 typedef struct packet_readable packetReadable;
 typedef struct packet_writable packetWritable;
+
 
 //don't manually write to a packetReadable.
 //I have no function to verify if a given 
@@ -64,4 +69,22 @@ bool packet_writable_eq(
         const packetWritable* p2
 );
 
+//gets the length of the packet writable's body
 size_t packet_writable_length(const packetWritable* p);
+
+//takes the data in a packet writable's body and 
+//interprets it as a series of varints and data fields
+//which it parses it into `num_pairs` lenDataPairs.
+//will return null if the contents of the packet body can't be parsed
+//to exactly `num_pairs` pairs.
+lenDataPair** packet_lenDataPair_array_from_packetReadable_body(
+        const packetReadable* packet,
+        int num_pairs
+);
+
+//frees the lenDataPairs from the above function
+void packet_lenDataPair_array_free(
+        lenDataPair** pairs,
+        int num_pairs
+); 
+

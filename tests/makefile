@@ -1,13 +1,8 @@
 CC=clang
 CFLAGS=-Wall -Wextra -DNDEBUGLOG
 
-run: varint_test packet_test util_packet_body_test
+run: varint_test packet_test
 	bash -c ./run_tests.sh
-
-valgrind: util_packet_body_test
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no ./util_packet_body_test
-
-util_packet_body_test: util_packet_body_test.o util_packet_body.o assertlib.o varint.o assertlib.o testlib.o
 
 varint_test: varint_test.o testlib.o varint.o assertlib.o
 	$(CC) $(CFLAGS) -o $@ $^

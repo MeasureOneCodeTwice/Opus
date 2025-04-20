@@ -19,6 +19,7 @@ bool verify_fcn(bool expression, int* tests_passed, int* tests_failed, char* exp
         printf("%sfailed%s!\n   '%s' evaluated to false.\n",
                 RED, RESET, expression_text);
     }
+    fflush(stdout);
     return expression;
 }
 

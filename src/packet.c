@@ -45,11 +45,46 @@ bool packet_readable_metadata_eq(
     const packetMetadata* m1, const packetMetadata* m2);
 size_t packet_writable_get_data_len(const packetWritable* p);
 size_t packet_writable_get_total_len(const packetWritable* p);
+void packet_lenDataPair_array_free_warnoption(lenDataPair** pairs, int num_pairs, bool warn);
 
 
 //-------------------------
 //----- PRIVATE UTILS -----
 //-------------------------
+//
+void packet_lenDataPair_free(lenDataPair* pair) {
+    bool precond_met = c_warn(pair != NULL, "Passed NULL pair");
+    if(!precond_met) {
+        return;
+    }
+
+    if(pair->data != NULL) {
+        free(pair->data);
+    }
+    free(pair);
+}
+
+void packet_lenDataPair_array_free_warnoption(lenDataPair** pairs, int num_pairs, bool warn) {
+    bool precond_met = pairs != NULL;
+    if(warn) { c_warn(pairs != NULL, "Passed NULL pairs"); }
+    if(!precond_met) { return; }
+
+    for(int i = 0; i < num_pairs; i++) {
+        bool is_null = pairs[i] == NULL;
+        if(warn) { 
+            c_warn(pairs[i] != NULL, "pairs contains NULL pair");
+        }
+        if(!is_null) {
+            packet_lenDataPair_free(pairs[i]);
+            pairs[i] = NULL;
+        }
+    }
+
+    if(warn) {
+        c_warn(num_pairs > 0, "Passed num_pairs = %d", num_pairs);
+    }
+    free(pairs);
+}
 
 int read_all(int sock, void* buff, size_t buff_len) {
 
@@ -409,8 +444,91 @@ size_t packet_writable_length(const packetWritable* p) {
         p->packet_len->len;
 }
 
+//--------------------------------------
+//----- PACKET BODY PUBLIC FUNCTIONS ---
+//--------------------------------------
+
+lenDataPair** packet_lenDataPair_array_from_packetReadable_body(
+        const packetReadable* packet,
+        int num_pairs
+) {
+    bool precond_met = 
+       c_assert(packet != NULL, "Passed NULL body")
+    && c_assert(packet->data != NULL, "Packet has NULL data field")
+    && c_warn(packet->data_len > 0 && num_pairs > 0, 
+            "body_len: %zu num_pairs: %d", 
+             packet->data_len, num_pairs
+    );
+    if(!precond_met) { return NULL; }
+
+
+    //malloc array of lenDataPairs
+    lenDataPair** result = malloc(sizeof(lenDataPair*) * num_pairs); 
+    int i = 0;
+    for(; i < num_pairs && result != NULL; i++) {
+        result[i] = malloc(sizeof(lenDataPair));
+        if(result[i] == NULL) { break; }
+        result[i]->len  = 0;
+        result[i]->data = NULL;
+    }
+    bool failure = false;
+    failure = !c_assert(
+            result != NULL, 
+            "Failed to allocate space for array of lenDataPair pointers"
+    );
+    failure = failure || !c_assert(
+            !failure && i == num_pairs,
+            "Failed to allocate space for lenDataPairs"
+    );
+    if(failure) {
+        packet_lenDataPair_array_free_warnoption(result, num_pairs, false);
+        return NULL; 
+    }
+
+
+    //parse data into the pairs
+    size_t offset = 0;
+    i = 0;
+    for(; i < num_pairs && offset <= packet->data_len; i++) {
+
+        Varint* chunk_body_len_vint = varint_vint_from_bytes(packet->data + offset);
+        failure = !c_assert(
+            chunk_body_len_vint != NULL,
+            "Could not parse beginning of chunk to varint"
+        );
+        if(failure) break;
+        size_t chunk_body_len = (size_t)varint_int_from_vint(chunk_body_len_vint);
+        offset += chunk_body_len_vint->len; 
+        varint_free(chunk_body_len_vint);
+        failure = !c_assert(
+            offset + chunk_body_len <= packet->data_len,
+            "Data chunk is larger than the space remaining in body."
+        );
+        if(failure) break;
+
+        //copy the chunk to a data len pair
+        result[i]->len = chunk_body_len;
+        result[i]->data = malloc(chunk_body_len);
+        failure = !c_assert(
+            result[i]->data != NULL, 
+            "Could not allocate chunk body"
+        ); 
+        if(failure) break;
+        memcpy(result[i]->data, packet->data + offset, chunk_body_len);
+        offset += chunk_body_len;
+    }
+    //assert the chunks spanned the entire buffer and there is nothing left over.
+    failure |= !c_assert( !(i == num_pairs && offset != packet->data_len), 
+        "Actual number of chunks exceeds number specified (%zu bytes remaining)",
+        packet->data_len - offset
+    );
+
+    if(failure) { packet_lenDataPair_array_free_warnoption(result, num_pairs, false); }
+    return failure ? NULL : result;
+}
+
 //----------------------------------
-//----- OTHER PUBLIC FUNCTIONS -----
+//----- FREEING PUBLIC FUNCTIONS -----
 //----------------------------------
 
 //a little bit of polymorphism :)
@@ -434,3 +552,9 @@ void packet_free(Packet *p) {
     }
 
 }
+
+void packet_lenDataPair_array_free(lenDataPair** pairs, int num_pairs) {
+    packet_lenDataPair_array_free_warnoption(pairs, num_pairs, false);
+}
+
+

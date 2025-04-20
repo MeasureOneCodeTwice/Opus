@@ -13,6 +13,7 @@ int tests_failed = 0;
 #define min(a,b) a < b ? a : b
 const int MAX_EXPECTED_BINARY_LENGTH = 5012;
 
+void test_parse_packet_body(void);
 void packet_test(
         uint8_t packet_id,     
         uint8_t* packet_data,
@@ -45,9 +46,71 @@ int main(void) {
     expected_binary = (uint8_t[8]){ 0x07, 0x80, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
     packet_test(0x80, buff, 5, expected_binary, 8);
 
+
+    printf("""---- Testing packet_lenDataPair_array_from_packetReadable_body ----\n");
+    test_parse_packet_body();
     return summary(&tests_passed, &tests_failed);
 
 }
+
+
+void test_parse_packet_body(void) {
+
+    packetReadable* pr = packet_readable_create(
+        0x00,
+        NULL,
+        0,
+        false
+    );
+    lenDataPair** result;
+
+    result = packet_lenDataPair_array_from_packetReadable_body(pr, 0);
+    verify(result == NULL, "Can handle NULL buffer");
+    packet_free((Packet*)pr);
+
+    //to silence warning of passing uninitilized pointer to packet_readable_create
+    uint8_t  number = 0;
+    uint8_t* content = &number;  
+    //please don't abuse a packet like this.
+    pr = packet_readable_create(
+        0x00,
+        content,
+        0,
+        false
+    );
+    pr->data = (uint8_t[3]){ 0x03, 0x00, 0x00};
+    pr->data_len = 3;
+    result = packet_lenDataPair_array_from_packetReadable_body(pr, 1);
+    verify(result == NULL, "Varint signifies length larger than actual length");
+
+    pr->data = (uint8_t[3]){ 0x02, 0x00, 0x00};
+    pr->data_len = 3;
+    result = packet_lenDataPair_array_from_packetReadable_body(pr, 10);
+    verify(result == NULL, "Specify more pairs than exist");
+
+    pr->data = (uint8_t[5]){ 0x01, 0x00, 0x02, 0x00, 0x00};
+    pr->data_len = 5;
+    result = packet_lenDataPair_array_from_packetReadable_body(pr, 1);
+    verify(result == NULL, "Specify less pairs than exist");
+
+    pr->data_len = 5;
+    result = packet_lenDataPair_array_from_packetReadable_body(pr, 2);
+    verify(result != NULL, "Test simple valid case");
+    packet_free((Packet*)pr);
+
+    bool expected_contents = false;
+    if(result != NULL) {
+        expected_contents = true;
+        expected_contents &= result[0]->len == 1;
+        expected_contents &= result[0]->data[0] == 0x00;
+        expected_contents &= result[1]->len == 2;
+        expected_contents &= result[1]->data[0] == 0x00;
+        expected_contents &= result[1]->data[1] == 0x00;
+        packet_lenDataPair_array_free(result, 2);
+    }
+    verify(expected_contents, "Contents of simple valid case correct");
+}
+
 
 // -----------------------------------------------------------------------------------------------------
 // |  PACKET READABLE 1 --> PACKET WRITABLE 1 --> STREAM --> PACKET WRITABLE 2 --> PACKET READABLE 2   |
