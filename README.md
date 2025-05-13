@@ -1,6 +1,6 @@
 # About
 
-Opus is a work-in-progress Minecraft Discord bot written in C.
+Opus is a work-in-progress Minecraft statistics scraper written in C.
 There are two ways to run Opus:
 1. Natively on your machine
 2. Through docker
